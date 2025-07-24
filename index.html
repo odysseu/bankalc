@@ -3,93 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur d'Optimisation d'Assurance Vie</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-        }
-        .formula {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .graph {
-            text-align: center;
-            margin-top: 20px;
-        }
-        canvas {
-            max-width: 100%;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+    <title>Bankalc</title>
+    <script src="https://cdn.jsdelivr.net/npm/js-polyfills/polyfill.min.js"></script>
+    <!-- https://polyfill.io/v3/polyfill.min.js?features=es6 -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js"></script>
+    <!-- https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Calculateur d'Optimisation d'Assurance Vie</h1>
+        <h1>Quand le prêt est bankale, mais que t'as une assurance-vie, tu bankalc !</h1>
         <div class="formula">
             <h2>Formules</h2>
-            <p><strong>Coût de l'emprunt :</strong> <code>M = (C * r) / (1 - (1 + r)^(-n))</code></p>
-            <p><strong>Impôt sur la plus-value :</strong> <code>Impôt = 0.30 * max(0, (x - 50000) - 4600)</code></p>
-            <p><strong>Coût total combiné :</strong> <code>Coût total = Coût de l'emprunt + Impôt sur la plus-value</code></p>
+            <p><strong>Mensualité de remboursement d'un emprunt :</strong> <span class="math">\( M = \frac{C \cdot r}{1 - (1 + r)^{-n}} \)</span></p>
+            <p><strong>Impôt sur la plus-value lors du rachat d'assurance-vie:</strong> <span class="math">\( \text{Impôt}(x) = \max(0, (x - \text{Abattement}) \times \text{tranche imposition max} \times \frac{\text{valeur actuelle} - \text{valeurs versées}}{\text{valeur actuelle}}) \)</span></p>
+            <p><strong>Coût total combiné :</strong> <span class="math">\( \text{Coût total} = \text{M} + \text{Impôt} \)</span></p>
         </div>
-        <div>
+        <div class="form-container">
             <h2>Paramètres</h2>
-            <form id="parametersForm">
-                <label for="montant_initial">Montant initial investi (€) :</label>
-                <input type="number" id="montant_initial" name="montant_initial" value="50000"><br><br>
-
-                <label for="montant_actuel">Montant actuel de l'assurance vie (€) :</label>
-                <input type="number" id="montant_actuel" name="montant_actuel" value="106000"><br><br>
-
-                <label for="taux_rendement">Taux de rendement annuel (%) :</label>
-                <input type="number" id="taux_rendement" name="taux_rendement" step="0.01" value="2.5"><br><br>
-
-                <label for="abattement_fiscal">Abattement fiscal annuel (€) :</label>
-                <input type="number" id="abattement_fiscal" name="abattement_fiscal" value="4600"><br><br>
-
-                <label for="taux_imposition">Taux d'imposition (%) :</label>
-                <input type="number" id="taux_imposition" name="taux_imposition" step="0.01" value="30"><br><br>
-
-                <label for="montant_achat">Montant total de l'achat immobilier (€) :</label>
-                <input type="number" id="montant_achat" name="montant_achat" value="180000"><br><br>
-
-                <label for="taux_interet_emprunt">Taux d'intérêt annuel de l'emprunt (%) :</label>
-                <input type="number" id="taux_interet_emprunt" name="taux_interet_emprunt" step="0.01" value="3"><br><br>
-
-                <label for="salaire_annuel">Salaire annuel avant impôts (€) :</label>
-                <input type="number" id="salaire_annuel" name="salaire_annuel" value="70000"><br><br>
-
-                <button type="button" onclick="calculate()">Calculer</button>
+            <form id="parametersForm" class="form">
+                <div class="form-group">
+                    <label for="montant_initial">Montant initial investi (€) :</label>
+                    <input type="number" id="montant_initial" name="montant_initial" value="50000">
+                </div>
+                <div class="form-group">
+                    <label for="montant_actuel">Montant actuel de l'assurance vie (€) :</label>
+                    <input type="number" id="montant_actuel" name="montant_actuel" value="106000">
+                </div>
+                <div class="form-group">
+                    <label for="taux_rendement">Taux de rendement annuel (%) :</label>
+                    <input type="number" id="taux_rendement" name="taux_rendement" step="0.01" value="2.5">
+                </div>
+                <div class="form-group">
+                    <label for="abattement_fiscal">Abattement fiscal annuel (€) :</label>
+                    <input type="number" id="abattement_fiscal" name="abattement_fiscal" value="4600">
+                </div>
+                <div class="form-group">
+                    <label for="montant_achat">Montant total de l'achat immobilier (€) :</label>
+                    <input type="number" id="montant_achat" name="montant_achat" value="180000">
+                </div>
+                <div class="form-group">
+                    <label for="taux_interet_emprunt">Taux d'intérêt annuel de l'emprunt (%) :</label>
+                    <input type="number" id="taux_interet_emprunt" name="taux_interet_emprunt" step="0.01" value="3">
+                </div>
+                <div class="form-group">
+                    <label for="salaire_annuel">Salaire annuel avant impôts (€) :</label>
+                    <input type="number" id="salaire_annuel" name="salaire_annuel" value="70000">
+                </div>
+                <div class="form-group">
+                    <label for="taux_effort_max">Taux d'effort maximal (%) :</label>
+                    <input type="number" id="taux_effort_max" name="taux_effort_max" step="0.01" value="33">
+                </div>
+                <div class="button-group">
+                    <button type="button" class="button" onclick="calculate()">Calculer</button>
+                    <button type="button" class="button" onclick="calculateRandomCase()">Comparer avec un cas aléatoire</button>
+                </div>
             </form>
         </div>
-        <div>
+        <div class="results">
+            <h2>Résultat Optimal</h2>
+            <table id="optimalResultTable" class="results-table">
+                <thead>
+                    <tr>
+                        <th>Durée de l'emprunt (années)</th>
+                        <th>Part optimale de l'assurance vie (€)</th>
+                        <th>Montant du prêt (€)</th>
+                        <th>Échéance mensuelle (€)</th>
+                        <th>Intérêts payés (€)</th>
+                        <th>Impôts payés sur la plus-value (€)</th>
+                        <th>Coût total (€)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="results">
             <h2>Résultats de la Simulation</h2>
-            <table id="resultsTable">
-                <tr>
-                    <th>Durée de l'emprunt (années)</th>
-                    <th>Part optimale de l'assurance vie (€)</th>
-                    <th>Montant du prêt (€)</th>
-                    <th>Coût total (€)</th>
-                </tr>
+            <table id="resultsTable" class="results-table">
+                <thead>
+                    <tr>
+                        <th>Durée de l'emprunt (années)</th>
+                        <th>Part optimale de l'assurance vie (€)</th>
+                        <th>Montant du prêt (€)</th>
+                        <th>Échéance mensuelle (€)</th>
+                        <th>Intérêts payés (€)</th>
+                        <th>Impôts payés sur la plus-value (€)</th>
+                        <th>Coût total (€)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="results">
+            <h2>Cas Aléatoire</h2>
+            <table id="randomCaseTable" class="results-table">
+                <thead>
+                    <tr>
+                        <th>Durée de l'emprunt (années)</th>
+                        <th>Part de l'assurance vie (€)</th>
+                        <th>Montant du prêt (€)</th>
+                        <th>Intérêts payés (€)</th>
+                        <th>Impôts payés sur la plus-value (€)</th>
+                        <th>Coût total (€)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
             </table>
         </div>
     </div>
