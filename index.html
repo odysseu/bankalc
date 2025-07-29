@@ -9,14 +9,34 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js"></script>
     <!-- https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js -->
     <link rel="stylesheet" href="styles.css">
+    <link id="favicon" rel="icon" href="logos/favicon-light.ico" type="image/x-icon">
 </head>
 <body>
+    <header class="sticky-header">
+        <div class="header-left">
+            <div class="logo-container">
+                <img src="logos/home-logo-light.png" alt="Home Logo" class="header-logo" id="home-logo">
+                <span class="logo-help">Réinitialiser le formulaire</span>
+            </div>
+        </div>
+        <h1 id="title-section">Calculette Projet Immobilier</h1>
+        <div class="header-right">
+            <a href="https://github.com/odysseu/bankalc" target="_self">
+                <img src="logos/github-logo-light.png" alt="GitHub Logo" class="github-logo" id="github-logo">
+                <span class="logo-help">Aller au projet GitHub</span>
+            </a>
+            <label class="switch">
+                <input type="checkbox" id="dark-mode-toggle">
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </header>
     <div class="container">
         <h1>Quand le prêt est bankale, mais que t'as une assurance-vie, tu bankalc !</h1>
         <div class="formula">
             <h2>Formules</h2>
             <p><strong>Mensualité de remboursement d'un emprunt :</strong> <span class="math">\( M = \frac{C \cdot r}{1 - (1 + r)^{-n}} \)</span></p>
-            <p><strong>Impôt sur la plus-value lors du rachat d'assurance-vie:</strong> <span class="math">\( \text{Impôt}(x) = \max(0, (x - \text{Abattement}) \times \text{tranche imposition max} \times \frac{\text{valeur actuelle} - \text{valeurs versées}}{\text{valeur actuelle}}) \)</span></p>
+            <p><strong>Impôt lors du rachat d'assurance-vie:</strong> <span class="math">\( \text{Impôt}(x) = \max\{0, (x - \text{Abat.}) \times \text{tranche} \times \frac{\text{valeur actuelle} - \text{valeurs versées}}{\text{valeur actuelle}}\} \)</span></p>
             <p><strong>Coût total combiné :</strong> <span class="math">\( \text{Coût total} = \text{M} + \text{Impôt} \)</span></p>
         </div>
         <div class="form-container">
@@ -112,5 +132,6 @@
         </div>
     </div>
     <script src="script.js"></script>
+    <script type="module" src="dark-mode.js"></script>
 </body>
 </html>

@@ -1,34 +1,191 @@
 :root {
-    --primary-color: #0244708a;
-    --primary-hover-color: #05436d7c;
-    --background-color: #f4f4f9;
+    --light-bg-color: #d1dbe0;
+    --light-text-color: #000000;
+    --dark-bg-color: #1e2a38;
+    --dark-text-color: #d1dbe0;
+    --primary-color: #2196F3AD;
+    --primary-color-alpha: #2196F352;
+    --primary-color-alpha-dark: #2195f365;
+    --secondary-color: #949494;
+    --welcome-message-light-bg-color: #aac3cf;
+    --welcome-message-dark-bg-color: #314050;
     --container-background: #fff;
     --formula-background: #f8f9fa;
-    --text-color: #333;
-    --border-color: #ddd;
+    --border-color: #ccc;
     --even-row-color: #f2f2f2;
     --hover-row-color: #e3f2fd;
+    --dark-even-row-color: #2a3b4d;
+    --dark-hover-row-color: #3a4b5d;
+    --white: #ffffff;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --box-shadow-color: rgba(12, 17, 22, 0.7);
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-bg-color);
+    color: var(--light-text-color);
     margin: 0;
-    padding: 20px;
-    background-color: var(--background-color);
-    color: var(--text-color);
+    padding: 10px;
+    overflow-x: hidden;
+}
+
+body.dark-mode {
+    background-color: var(--dark-bg-color);
+    color: var(--dark-text-color);
 }
 
 .container {
     max-width: 1000px;
     margin: auto;
     background: var(--container-background);
-    padding: 20px;
+    padding: 10px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px var(--shadow-color);
+}
+
+body.dark-mode .container {
+    background: var(--dark-bg-color);
+    border-color: var(--dark-bg-color);
 }
 
 h1, h2 {
-    color: var(--text-color);
+    color: var(--light-text-color);
+}
+
+body.dark-mode h1, body.dark-mode h2 {
+    color: var(--dark-text-color);
+}
+
+.sticky-header {
+    background-color: var(--light-bg-color);
+    color: var(--light-text-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0px 2px 3px 1px var(--box-shadow-color);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+body.dark-mode .sticky-header {
+    background-color: var(--dark-bg-color);
+    color: var(--dark-text-color);
+}
+
+.header-left, .header-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.header-right {
+    justify-content: flex-end;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.header-logo {
+    max-width: 50px;
+    max-height: 50px;
+    cursor: pointer;
+}
+
+.logo-help {
+    visibility: hidden;
+    max-width: 200px;
+    color: var(--white);
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background-color: var(--secondary-color);
+    left: 100%;
+    margin-left: 10px;
+}
+
+.logo-help::after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--secondary-color) transparent transparent transparent;
+}
+
+.logo-container:hover .logo-help {
+    visibility: visible;
+    opacity: 1;
+}
+
+header h1 {
+    flex-grow: 0.5;
+    text-align: center;
+    margin: 0;
+}
+
+.github-logo {
+    max-width: 32px;
+    max-height: 32px;
+    cursor: pointer;
+    display: flex;
+}
+
+.switch {
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    position: relative;
+    margin-left: 10px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border-color);
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: var(--white);
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
 }
 
 .formula {
@@ -39,12 +196,20 @@ h1, h2 {
     border-left: 4px solid var(--primary-color);
 }
 
+body.dark-mode .formula {
+    background-color: var(--dark-bg-color);
+}
+
 .form-container {
     background-color: var(--formula-background);
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 20px;
     border-left: 4px solid var(--primary-color);
+}
+
+body.dark-mode .form-container {
+    background-color: var(--dark-bg-color);
 }
 
 .form-group {
@@ -72,7 +237,7 @@ h1, h2 {
 
 .button {
     background-color: var(--primary-color);
-    color: white;
+    color: var(--white);
     border: none;
     padding: 10px 20px;
     border-radius: 4px;
@@ -82,7 +247,7 @@ h1, h2 {
 }
 
 .button:hover {
-    background-color: var(--primary-hover-color);
+    background-color: #0056b3;
 }
 
 .results {
@@ -103,13 +268,42 @@ h1, h2 {
 
 .results-table th {
     background-color: var(--primary-color);
-    color: white;
+    color: var(--white);
 }
 
 .results-table tr:nth-child(even) {
     background-color: var(--even-row-color);
 }
 
+body.dark-mode .results-table tr:nth-child(even) {
+    background-color: var(--dark-even-row-color);
+}
+
 .results-table tr:hover {
     background-color: var(--hover-row-color);
+}
+
+body.dark-mode .results-table tr:hover {
+    background-color: var(--dark-hover-row-color);
+}
+
+body.dark-mode input, body.dark-mode button {
+    background-color: var(--dark-bg-color);
+    color: var(--dark-text-color);
+    border: 1px solid var(--border-color);
+}
+
+#language-select {
+    margin-left: 10px;
+    padding: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--light-bg-color);
+    color: var(--light-text-color);
+}
+
+body.dark-mode #language-select {
+    background-color: var(--dark-bg-color);
+    color: var(--dark-text-color);
+    border-color: var(--border-color);
 }
