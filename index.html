@@ -19,7 +19,7 @@
                 <span class="logo-help">Réinitialiser le formulaire</span>
             </div>
         </div>
-        <h1 id="title-section">Calculette Projet Immobilier</h1>
+        <h1 id="title-section">Bankalc</h1>
         <div class="header-right">
             <a href="https://github.com/odysseu/bankalc" target="_self">
                 <img src="logos/github-logo-light.png" alt="GitHub Logo" class="github-logo" id="github-logo">
@@ -32,12 +32,14 @@
         </div>
     </header>
     <div class="container">
-        <h1>Quand le prêt est bankale, mais que t'as une assurance-vie, tu bankalc !</h1>
+        <h1>Quand le prêt est bankale, mais qu'on a une assurance-vie, on bankalc !</h1>
         <div class="formula">
             <h2>Formules</h2>
-            <p><strong>Mensualité de remboursement d'un emprunt :</strong> <span class="math">\( M = \frac{C \cdot r}{1 - (1 + r)^{-n}} \)</span></p>
-            <p><strong>Impôt lors du rachat d'assurance-vie:</strong> <span class="math">\( \text{Impôt}(x) = \max\{0, (x - \text{Abat.}) \times \text{tranche} \times \frac{\text{valeur actuelle} - \text{valeurs versées}}{\text{valeur actuelle}}\} \)</span></p>
-            <p><strong>Coût total combiné :</strong> <span class="math">\( \text{Coût total} = \text{M} + \text{Impôt} \)</span></p>
+            <p><span class="math">\( Mensualité(x) = x \cdot \frac{\frac{i}{12}}{1 - \frac{1}{(1 + \frac{i}{12})^{n}}} \)</span></p>
+            <p><span class="math">\( plus Value_{Assurance vie}(x) = \text{x} \cdot ((1 + \text{rendement})^{n} - 1) \)</span></p>
+            <p><span class="math">\( Impôt_{Assurance vie}(x) = \max\{0; (x - \text{Abattement}) \cdot \text{tranche} \cdot \frac{\text{valeur actuelle} - \text{valeurs versées}}{\text{valeur actuelle}}\} \)</span></p>
+            <p><span class="math">\( Coût_{total}(x) =  (\text{prix} - x) - n \cdot Mensualité(\text{prix} - x) + Impôt_{Assurance vie}(x) \)</span>, Où \( x \) est la somme rachetée sur l'assurance-vie.</p>
+            <p><span class="math">\( Bilan(x) = plus Value_{Assurance vie}(x) - Coût_{total}(x) \)</span></p>
         </div>
         <div class="form-container">
             <h2>Paramètres</h2>
@@ -92,6 +94,8 @@
                         <th>Intérêts payés (€)</th>
                         <th>Impôts payés sur la plus-value (€)</th>
                         <th>Coût total (€)</th>
+                        <th>Valeur future de l'assurance vie (€)</th>
+                        <th>Bilan (€)</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -109,6 +113,8 @@
                         <th>Intérêts payés (€)</th>
                         <th>Impôts payés sur la plus-value (€)</th>
                         <th>Coût total (€)</th>
+                        <th>Valeur future de l'assurance vie (€)</th>
+                        <th>Bilan (€)</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -125,6 +131,8 @@
                         <th>Intérêts payés (€)</th>
                         <th>Impôts payés sur la plus-value (€)</th>
                         <th>Coût total (€)</th>
+                        <th>Valeur future de l'assurance vie (€)</th>
+                        <th>Bilan (€)</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
