@@ -41,7 +41,8 @@
             <p><span class="math">\( Mensualité(x) = x \cdot \frac{\frac{i}{12}}{1 - \frac{1}{(1 + \frac{i}{12})^{n}}} \)</span></p>
             <p><span class="math">\( Gain_{Assurance vie}(x) = \text{x} \cdot ((1 + \text{rendement})^{n} - 1) \)</span></p>
             <!-- <p><span class="math">\( Impôt_{Assurance vie}(x) = \max\{0; (x - \text{Abattement}) \cdot \text{tranche} \cdot \frac{\text{valeur actuelle} - \text{valeurs versées}}{\text{valeur actuelle}}\} \)</span></p> -->
-            <p><span class="math">\( Impôt_{Assurance vie}(x) = \max\{0; (x \cdot \frac{V_{A} - V_{I}}{V_{A}} - \text{Abattement}) \cdot \text{tranche} - \text{Abattement} \cdot \frac{17,2}{100}\} \)</span></p>
+              <!-- + \text{Abattement} \cdot \frac{17,2}{100}\} -->
+            <p><span class="math">\( Impôt_{Assurance vie}(x) = \max\{0; (x \cdot \frac{V_{A} - V_{I}}{V_{A}} - \text{Abattement}) \cdot \text{tranche} \)</span></p>
             <p><span class="math">\( Coût_{total}(x) = n \cdot Mensualité(\text{prix} - x) - (\text{prix} - x) + Impôt_{Assurance vie}(x) \)</span>, Où \( x \) est la somme rachetée sur l'assurance-vie.</p>
             <p><span class="math">\( Bilan(x) = Gain_{Assurance vie}(V_{A} - x) - Coût_{total}(x) \)</span></p>
         </div>
