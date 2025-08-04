@@ -19,9 +19,49 @@
     --white: #ffffff;
     --shadow-color: rgba(0, 0, 0, 0.1);
     --box-shadow-color: rgba(12, 17, 22, 0.7);
+    --rouge-formule: #d40000;
+    --bleu-formule: #0057b8;
+    --vert-formule: #007f5f;
+    --jaune-formule: #f0ad4e;
+    --violet-formule: #8151d8;
+    --rose-formule: #e83e8c;
+
+    --rouge-formule-dark: #ff6666;
+    --bleu-formule-dark: #6caeff;
+    --vert-formule-dark: #63e6be;
+    --jaune-formule-dark: #ffcc00;
+    --violet-formule-dark: #b19cd9;
+    --rose-formule-dark: #ff80b3;
+}
+
+.textred {
+    color: var(--rouge-principal);
+}
+
+.textblue {
+    color: var(--bleu-principal);
+}
+
+.textgreen {
+    color: var(--vert-principal);
+}
+
+.textyellow {
+    color: var(--jaune-formule);
+}
+
+.textpurple {
+    color: var(--violet-formule);
+}
+
+.textpink {
+    color: var(--rose-formule);
 }
 
 body {
+    --rouge-principal: var(--rouge-formule);
+    --bleu-principal: var(--bleu-formule);
+    --vert-principal: var(--vert-formule);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--light-bg-color);
     color: var(--light-text-color);
@@ -31,6 +71,9 @@ body {
 }
 
 body.dark-mode {
+    --rouge-principal: var(--rouge-formule-dark);
+    --bleu-principal: var(--bleu-formule-dark);
+    --vert-principal: var(--vert-formule-dark);
     background-color: var(--dark-bg-color);
     color: var(--dark-text-color);
 }
@@ -49,11 +92,13 @@ body.dark-mode .container {
     border-color: var(--dark-bg-color);
 }
 
-h1, h2 {
+h1,
+h2 {
     color: var(--light-text-color);
 }
 
-body.dark-mode h1, body.dark-mode h2 {
+body.dark-mode h1,
+body.dark-mode h2 {
     color: var(--dark-text-color);
 }
 
@@ -64,7 +109,7 @@ body.dark-mode h1, body.dark-mode h2 {
     top: 0;
     z-index: 1000;
     box-shadow: 0px 2px 3px 1px var(--box-shadow-color);
-    padding: 10px 20px;
+    padding: 5px 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -75,7 +120,8 @@ body.dark-mode .sticky-header {
     color: var(--dark-text-color);
 }
 
-.header-left, .header-right {
+.header-left,
+.header-right {
     flex: 1;
     display: flex;
     align-items: center;
@@ -180,19 +226,19 @@ header h1 {
     border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
     background-color: var(--primary-color);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
     transform: translateX(26px);
 }
 
 .formula {
     background-color: var(--formula-background);
-    padding: 20px;
+    padding: 10px;
     border-radius: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     border-left: 4px solid var(--primary-color);
 }
 
@@ -200,20 +246,31 @@ body.dark-mode .formula {
     background-color: var(--dark-bg-color);
 }
 
-.form-container {
-    background-color: var(--formula-background);
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border-left: 4px solid var(--primary-color);
-}
-
 body.dark-mode .form-container {
     background-color: var(--dark-bg-color);
 }
 
+.form-container {
+    background-color: var(--formula-background);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    /* Espace entre les éléments */
+}
+
 .form-group {
-    margin-bottom: 15px;
+    flex: 1 1 calc(50% - 10px);
+    /* Ajustez la largeur selon vos besoins */
+    min-width: 200px;
+    /* Largeur minimale pour chaque form-group */
+    margin-bottom: 10px;
 }
 
 .form-group label {
@@ -260,7 +317,8 @@ body.dark-mode .form-container {
     margin-top: 10px;
 }
 
-.results-table th, .results-table td {
+.results-table th,
+.results-table td {
     border: 1px solid var(--border-color);
     padding: 12px;
     text-align: left;
@@ -287,7 +345,8 @@ body.dark-mode .results-table tr:hover {
     background-color: var(--dark-hover-row-color);
 }
 
-body.dark-mode input, body.dark-mode button {
+body.dark-mode input,
+body.dark-mode button {
     background-color: var(--dark-bg-color);
     color: var(--dark-text-color);
     border: 1px solid var(--border-color);

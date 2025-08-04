@@ -23,15 +23,14 @@ function calculateTauxImposition(salaireAnnuel) {
 }
 
 function coutRachatAssuranceVie(x, abattementFiscal, montantActuel, montantInitial, tauxImposition) {
-    const plusValueRetrait = x - abattementFiscal;
-    const plusValueImposableRetrait = Math.max(0, plusValueRetrait);
-    const pourcentPlusValue = Math.max(0, (montantActuel - montantInitial) / montantInitial);
-    const coutRachatAssurVie = tauxImposition * pourcentPlusValue * plusValueImposableRetrait;
+    const plusValueImposableRetrait = Math.max(0, x * ((montantActuel - montantInitial) / montantActuel) - abattementFiscal);
+    const imposition = 17.2 / 100 + Math.min(tauxImposition, 7.5 / 100);
+    const coutRachatAssurVie = imposition * plusValueImposableRetrait;
     return coutRachatAssurVie;
 }
 
-function coutEmprunt(x, montantAchat, tauxInteretEmprunt, dureeEmprunt) {
-    const capitalEmprunte = montantAchat - x;
+function coutEmprunt(x, tauxInteretEmprunt, dureeEmprunt) {
+    const capitalEmprunte = x;
     const mensualite = calculateMensualite(capitalEmprunte, tauxInteretEmprunt, dureeEmprunt);
     const totalPaye = mensualite * dureeEmprunt * 12;
     return totalPaye - capitalEmprunte; // Total des intérêts payés
@@ -39,32 +38,34 @@ function coutEmprunt(x, montantAchat, tauxInteretEmprunt, dureeEmprunt) {
 
 function coutOperation(x, abattementFiscal, montantActuel, montantInitial, tauxImposition, tauxRendement, montantAchat, tauxInteretEmprunt, dureeEmprunt) {
     const coutRachatAssurVie = coutRachatAssuranceVie(x, abattementFiscal, montantActuel, montantInitial, tauxImposition);
-    const coutEmpr = coutEmprunt(x, montantAchat, tauxInteretEmprunt, dureeEmprunt);
+    const coutEmpr = coutEmprunt(montantAchat - x, tauxInteretEmprunt, dureeEmprunt);
     const resteAssuranceVie = montantActuel - x;
     const valeurFutureAssuranceVie = resteAssuranceVie * (Math.pow(1 + tauxRendement, dureeEmprunt) - 1);
     const coutTotal = coutRachatAssurVie + coutEmpr;
+    const bilan = valeurFutureAssuranceVie - coutTotal;
     return {
         partAssurVieUtilisee: x,
         coutTotal: coutTotal,
         interetsPayes: coutEmpr,
         impotPlusValue: coutRachatAssurVie,
-        valeurFutureAssuranceVie: valeurFutureAssuranceVie
+        valeurFutureAssuranceVie: valeurFutureAssuranceVie,
+        bilan: bilan
     };
 }
 
 function calculateOptimalX(montantInitial, montantActuel, tauxRendement, montantAchat, tauxInteretEmprunt, abattementFiscal, tauxImposition, dureeEmprunt) {
-    let xOptimal = 0;
+    let coutOpe = 0;
     let minCoutOperation = coutOperation(0, abattementFiscal, montantActuel, montantInitial, tauxImposition, tauxRendement, montantAchat, tauxInteretEmprunt, dureeEmprunt);
     const rachatMaximumAssuranceVie = montantActuel - coutRachatAssuranceVie(montantActuel, abattementFiscal, montantActuel, montantInitial, tauxImposition);
 
     for (let x = 1; x <= Math.min(montantAchat, rachatMaximumAssuranceVie); x++) {
-        const coutOpe = coutOperation(x, abattementFiscal, montantActuel, montantInitial, tauxImposition, tauxRendement, montantAchat, tauxInteretEmprunt, dureeEmprunt);
-        if (coutOpe.coutTotal < minCoutOperation.coutTotal) {
+        coutOpe = coutOperation(x, abattementFiscal, montantActuel, montantInitial, tauxImposition, tauxRendement, montantAchat, tauxInteretEmprunt, dureeEmprunt);
+        if (coutOpe.bilan > minCoutOperation.bilan) {
             minCoutOperation = coutOpe;
-            xOptimal = x;
+            // xOptimal = x;
         }
     }
-    return { ...minCoutOperation, xOptimal };
+    return { ...minCoutOperation };
 }
 
 let results = [];
@@ -87,8 +88,8 @@ function calculate() {
 
     for (let dureeEmprunt = 1; dureeEmprunt <= 25; dureeEmprunt++) {
         const result = calculateOptimalX(montantInitial, montantActuel, tauxRendement, montantAchat, tauxInteretEmprunt, abattementFiscal, tauxImposition, dureeEmprunt);
-        const pretOptimal = montantAchat - result.xOptimal;
-        const bilan = result.valeurFutureAssuranceVie - result.coutTotal;
+        const pretOptimal = montantAchat - result.partAssurVieUtilisee;
+        // const bilan = result.valeurFutureAssuranceVie - result.coutTotal;
         const mensualite = calculateMensualite(pretOptimal, tauxInteretEmprunt, dureeEmprunt);
 
         if (mensualite <= effortMaxMensuel) {
@@ -101,21 +102,21 @@ function calculate() {
                 impotPlusValue: result.impotPlusValue,
                 mensualite: mensualite,
                 valeurFutureAssuranceVie: result.valeurFutureAssuranceVie,
-                bilan: bilan
+                bilan: result.bilan
             });
 
             if (result.coutTotal < minCost) {
                 minCost = result.coutTotal;
                 optimalResult = {
                     dureeEmprunt,
-                    xOptimal: result.xOptimal,
+                    partAssurVieUtilisee: result.partAssurVieUtilisee,
                     pret: montantAchat - result.partAssurVieUtilisee,
                     coutTotal: result.coutTotal,
                     interetsPayes: result.interetsPayes,
                     impotPlusValue: result.impotPlusValue,
                     mensualite: mensualite,
                     valeurFutureAssuranceVie: result.valeurFutureAssuranceVie,
-                    bilan: bilan
+                    bilan: result.bilan
                 };
             }
         }
@@ -169,7 +170,7 @@ function displayOptimalResult(result) {
         </tr>
         <tr>
             <td>${result.dureeEmprunt}</td>
-            <td>${result.xOptimal.toFixed(2)}</td>
+            <td>${result.partAssurVieUtilisee.toFixed(2)}</td>
             <td>${result.pret.toFixed(2)}</td>
             <td>${result.mensualite.toFixed(2)}</td>
             <td>${result.interetsPayes.toFixed(2)}</td>
@@ -197,17 +198,17 @@ function calculateRandomCase() {
 
     // Choisir une année aléatoire entre minDureeEmprunt et maxDureeEmprunt
     const dureeEmprunt = Math.floor(Math.random() * (maxDureeEmprunt - minDureeEmprunt + 1)) + minDureeEmprunt;
-    const xRandom = Math.floor(Math.random() * montantActuel);
+    const rachatMaximumAssuranceVie = montantActuel - coutRachatAssuranceVie(montantActuel, abattementFiscal, montantActuel, montantInitial, tauxImposition);
+    const xRandom = Math.floor(Math.random() * rachatMaximumAssuranceVie);
 
     // Calculer les détails pour le cas aléatoire
     const coutRachatAssurVie = coutRachatAssuranceVie(xRandom, abattementFiscal, montantActuel, montantInitial, tauxImposition);
-
-    const montantPret = montantAchat - xRandom;
     // const M = calculateMensualite(C, tauxInteretEmprunt, dureeEmprunt);
     // const totalPaye = M * dureeEmprunt * 12;
-    const coutTotalEmprunt = coutEmprunt(xRandom, montantAchat, tauxInteretEmprunt, dureeEmprunt);
+    const montantEmprunte = montantAchat - xRandom;
+    const coutTotalEmprunt = coutEmprunt(montantEmprunte, tauxInteretEmprunt, dureeEmprunt);
 
-    
+
     const resteAssuranceVie = montantActuel - xRandom;
     const valeurFutureAssuranceVie = resteAssuranceVie * (Math.pow(1 + tauxRendement, dureeEmprunt) - 1);
     // const impotPlusValueFutur = coutRetraitAssuranceVie(xRandom, abattementFiscal, valeurFutureAssuranceVie, montantInitial, tauxImposition);
@@ -231,7 +232,7 @@ function calculateRandomCase() {
         <tr>
             <td>${dureeEmprunt}</td>
             <td>${xRandom.toFixed(2)}</td>
-            <td>${montantPret.toFixed(2)}</td>
+            <td>${montantEmprunte.toFixed(2)}</td>
             <td>${coutTotalEmprunt.toFixed(2)}</td>
             <td>${coutRachatAssurVie.toFixed(2)}</td>
             <td>${coutTotalRandom.toFixed(2)}</td>
