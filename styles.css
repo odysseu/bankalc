@@ -66,7 +66,7 @@ body {
     background-color: var(--light-bg-color);
     color: var(--light-text-color);
     margin: 0;
-    padding: 10px;
+    padding: 5px;
     overflow-x: hidden;
 }
 
@@ -82,7 +82,7 @@ body.dark-mode {
     max-width: 1000px;
     margin: auto;
     background: var(--container-background);
-    padding: 10px;
+    padding: 5px;
     border-radius: 10px;
     box-shadow: 0 0 10px var(--shadow-color);
 }
@@ -94,7 +94,9 @@ body.dark-mode .container {
 
 h1,
 h2 {
-    color: var(--light-text-color);
+    /* color: var(--light-text-color); */
+    text-align: center;
+    font-size: medium;
 }
 
 body.dark-mode h1,
@@ -285,6 +287,18 @@ body.dark-mode .form-container {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     box-sizing: border-box;
+}
+
+.optimisation-switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+#optimisation-label {
+    font-weight: bold;
+    min-width: 100px;
 }
 
 .button-group {

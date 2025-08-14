@@ -12,66 +12,69 @@ function calculateTauxImposition(salaireAnnuel) {
         { seuil: 180294, taux: 0.41 },
         { seuil: Infinity, taux: 0.45 }
     ];
-    let tauxMinimum = 0;
     for (const tranche of tranches) {
         if (salaireAnnuel <= tranche.seuil) {
-            tauxMinimum = tranche.taux;
-            break;
+            return Math.min(tranche.taux, 0.197);
         }
     }
-    return Math.min(tauxMinimum, 0.197); // 7.5% + 12.2% de CSG/CRDS
+    return 0.197;
 }
+
+document.getElementById('optimiser_bilan').addEventListener('change', function () {
+    const label = document.getElementById('optimisation-label');
+    label.textContent = this.checked ? "Bilan" : "Coût des impôts";
+});
 
 function coutRachatAssuranceVie(x, abattementFiscal, montantActuel, montantInitial, tauxImposition) {
     const plusValueImposableRetrait = Math.max(0, x * ((montantActuel - montantInitial) / montantActuel) - abattementFiscal);
-    const imposition = 17.2 / 100 + Math.min(tauxImposition, 7.5 / 100);
-    const coutRachatAssurVie = imposition * plusValueImposableRetrait;
-    return coutRachatAssurVie;
+    const imposition = 0.172 + Math.min(tauxImposition, 0.075); // Prélèvement sociaux (CSG + CRDS) + prélèvement forfaitaire
+    return imposition * plusValueImposableRetrait;
 }
 
 function coutEmprunt(x, tauxInteretEmprunt, dureeEmprunt) {
-    const capitalEmprunte = x;
-    const mensualite = calculateMensualite(capitalEmprunte, tauxInteretEmprunt, dureeEmprunt);
-    const totalPaye = mensualite * dureeEmprunt * 12;
-    return totalPaye - capitalEmprunte; // Total des intérêts payés
+    const mensualite = calculateMensualite(x, tauxInteretEmprunt, dureeEmprunt);
+    return mensualite * dureeEmprunt * 12 - x;
 }
 
 function coutOperation(x, abattementFiscal, montantActuel, montantInitial, tauxImposition, tauxRendement, montantAchat, tauxInteretEmprunt, dureeEmprunt) {
-    const coutRachatAssurVie = coutRachatAssuranceVie(x, abattementFiscal, montantActuel, montantInitial, tauxImposition);
+    const coutRachat = coutRachatAssuranceVie(x, abattementFiscal, montantActuel, montantInitial, tauxImposition);
     const coutEmpr = coutEmprunt(montantAchat - x, tauxInteretEmprunt, dureeEmprunt);
     const resteAssuranceVie = montantActuel - x;
     const valeurFutureAssuranceVie = resteAssuranceVie * (Math.pow(1 + tauxRendement, dureeEmprunt) - 1);
-    const coutTotal = coutRachatAssurVie + coutEmpr;
-    const bilan = valeurFutureAssuranceVie - coutTotal;
+    const bilan = valeurFutureAssuranceVie - (coutRachat + coutEmpr);
     return {
         partAssurVieUtilisee: x,
-        coutTotal: coutTotal,
+        coutTotal: coutRachat + coutEmpr,
         interetsPayes: coutEmpr,
-        impotPlusValue: coutRachatAssurVie,
-        valeurFutureAssuranceVie: valeurFutureAssuranceVie,
-        bilan: bilan
+        impotPlusValue: coutRachat,
+        valeurFutureAssuranceVie,
+        bilan
     };
 }
 
-function calculateOptimalX(montantInitial, montantActuel, tauxRendement, montantAchat, tauxInteretEmprunt, abattementFiscal, tauxImposition, dureeEmprunt) {
-    let coutOpe = 0;
-    let minCoutOperation = coutOperation(0, abattementFiscal, montantActuel, montantInitial, tauxImposition, tauxRendement, montantAchat, tauxInteretEmprunt, dureeEmprunt);
+function calculateOptimalX(montantInitial, montantActuel, tauxRendement, montantAchat, tauxInteretEmprunt, abattementFiscal, tauxImposition, dureeEmprunt, optimiserBilan = false) {
+    let optimalResult = null;
+    let bestValue = optimiserBilan ? -Infinity : Infinity;
     const rachatMaximumAssuranceVie = montantActuel - coutRachatAssuranceVie(montantActuel, abattementFiscal, montantActuel, montantInitial, tauxImposition);
+    const maxX = Math.min(montantAchat, rachatMaximumAssuranceVie);
 
-    for (let x = 1; x <= Math.min(montantAchat, rachatMaximumAssuranceVie); x++) {
-        coutOpe = coutOperation(x, abattementFiscal, montantActuel, montantInitial, tauxImposition, tauxRendement, montantAchat, tauxInteretEmprunt, dureeEmprunt);
-        if (coutOpe.bilan > minCoutOperation.bilan) {
-            minCoutOperation = coutOpe;
-            // xOptimal = x;
+    for (let x = 0; x <= maxX; x += 1) {
+        const result = coutOperation(x, abattementFiscal, montantActuel, montantInitial, tauxImposition, tauxRendement, montantAchat, tauxInteretEmprunt, dureeEmprunt);
+        const currentValue = optimiserBilan ? result.bilan : result.coutTotal;
+        if ((optimiserBilan && currentValue > bestValue) || (!optimiserBilan && currentValue < bestValue)) {
+            bestValue = currentValue;
+            optimalResult = result;
+            optimalResult.partAssurVieUtilisee = x;
         }
     }
-    return { ...minCoutOperation };
+    return optimalResult;
 }
 
 let results = [];
 
 function calculate() {
     results = [];
+
     const montantInitial = parseFloat(document.getElementById('montant_initial').value);
     const montantActuel = parseFloat(document.getElementById('montant_actuel').value);
     const tauxRendement = parseFloat(document.getElementById('taux_rendement').value) / 100;
@@ -83,38 +86,38 @@ function calculate() {
     const tauxImposition = calculateTauxImposition(salaireAnnuel);
     const salaireMensuel = salaireAnnuel / 12;
     const effortMaxMensuel = salaireMensuel * tauxEffortMax;
+    const optimiserBilan = document.getElementById('optimiser_bilan').checked;
+
     let optimalResult = null;
-    let minCost = Infinity;
+    let bestValue = optimiserBilan ? -Infinity : Infinity;
 
     for (let dureeEmprunt = 1; dureeEmprunt <= 25; dureeEmprunt++) {
-        const result = calculateOptimalX(montantInitial, montantActuel, tauxRendement, montantAchat, tauxInteretEmprunt, abattementFiscal, tauxImposition, dureeEmprunt);
+        const result = calculateOptimalX(montantInitial, montantActuel, tauxRendement, montantAchat, tauxInteretEmprunt, abattementFiscal, tauxImposition, dureeEmprunt, optimiserBilan);
         const pretOptimal = montantAchat - result.partAssurVieUtilisee;
-        // const bilan = result.valeurFutureAssuranceVie - result.coutTotal;
         const mensualite = calculateMensualite(pretOptimal, tauxInteretEmprunt, dureeEmprunt);
-
         if (mensualite <= effortMaxMensuel) {
             results.push({
-                dureeEmprunt: dureeEmprunt,
+                dureeEmprunt,
                 partAssurVieUtilisee: result.partAssurVieUtilisee,
-                pret: montantAchat - result.partAssurVieUtilisee,
+                pret: pretOptimal,
                 coutTotal: result.coutTotal,
                 interetsPayes: result.interetsPayes,
                 impotPlusValue: result.impotPlusValue,
-                mensualite: mensualite,
+                mensualite,
                 valeurFutureAssuranceVie: result.valeurFutureAssuranceVie,
                 bilan: result.bilan
             });
-
-            if (result.coutTotal < minCost) {
-                minCost = result.coutTotal;
+            const currentValue = optimiserBilan ? result.bilan : result.coutTotal;
+            if ((optimiserBilan && currentValue > bestValue) || (!optimiserBilan && currentValue < bestValue)) {
+                bestValue = currentValue;
                 optimalResult = {
                     dureeEmprunt,
                     partAssurVieUtilisee: result.partAssurVieUtilisee,
-                    pret: montantAchat - result.partAssurVieUtilisee,
+                    pret: pretOptimal,
                     coutTotal: result.coutTotal,
                     interetsPayes: result.interetsPayes,
                     impotPlusValue: result.impotPlusValue,
-                    mensualite: mensualite,
+                    mensualite,
                     valeurFutureAssuranceVie: result.valeurFutureAssuranceVie,
                     bilan: result.bilan
                 };
@@ -238,6 +241,40 @@ function calculateRandomCase() {
             <td>${coutTotalRandom.toFixed(2)}</td>
             <td>${valeurFutureAssuranceVie.toFixed(2)}</td>
             <td>${bilan.toFixed(2)}</td>
+        </tr>
+    `;
+}
+function calculatePerso() {
+    const montantInitial = parseFloat(document.getElementById('montant_initial').value);
+    const montantActuel = parseFloat(document.getElementById('montant_actuel').value);
+    const tauxRendement = parseFloat(document.getElementById('taux_rendement').value) / 100;
+    const abattementFiscal = parseFloat(document.getElementById('abattement_fiscal').value);
+    const montantAchat = parseFloat(document.getElementById('montant_achat').value);
+    const tauxInteretEmprunt = parseFloat(document.getElementById('taux_interet_emprunt').value) / 100;
+    const salaireAnnuel = parseFloat(document.getElementById('salaire_annuel').value);
+    const tauxImposition = calculateTauxImposition(salaireAnnuel);
+
+    const x = parseFloat(document.getElementById('montant_rachat_perso').value);
+    const dureeEmprunt = parseInt(document.getElementById('duree_emprunt_perso').value);
+
+    // Calculs
+    const result = coutOperation(x, abattementFiscal, montantActuel, montantInitial, tauxImposition, tauxRendement, montantAchat, tauxInteretEmprunt, dureeEmprunt);
+    const pret = montantAchat - x;
+    const mensualite = calculateMensualite(pret, tauxInteretEmprunt, dureeEmprunt);
+
+    // Affichage
+    const table = document.getElementById('persoResultTable');
+    table.querySelector('tbody').innerHTML = `
+        <tr>
+            <td>${dureeEmprunt}</td>
+            <td>${x.toFixed(2)}</td>
+            <td>${pret.toFixed(2)}</td>
+            <td>${mensualite.toFixed(2)}</td>
+            <td>${result.interetsPayes.toFixed(2)}</td>
+            <td>${result.impotPlusValue.toFixed(2)}</td>
+            <td>${result.coutTotal.toFixed(2)}</td>
+            <td>${result.valeurFutureAssuranceVie.toFixed(2)}</td>
+            <td>${result.bilan.toFixed(2)}</td>
         </tr>
     `;
 }

@@ -30,7 +30,6 @@
         <div class="header-right">
             <a href="https://github.com/odysseu/bankalc" target="_self">
                 <img src="logos/github-logo-light.png" alt="GitHub Logo" class="github-logo" id="github-logo">
-                <span class="logo-help">Aller au projet GitHub</span>
             </a>
             <label class="switch">
                 <input type="checkbox" id="dark-mode-toggle">
@@ -96,6 +95,16 @@
                     <label for="taux_effort_max">Taux d'effort (%) :</label>
                     <input type="number" id="taux_effort_max" name="taux_effort_max" step="0.01" value="33">
                 </div>
+                <div class="form-group">
+                    <label for="optimisation">Optimiser pour :</label>
+                    <div class="optimisation-switch">
+                        <span id="optimisation-label">Coût des impôts</span>
+                        <label class="switch">
+                            <input type="checkbox" id="optimiser_bilan">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
                 <div class="button-group">
                     <button type="button" class="button" onclick="calculate()">Calculer</button>
                     <button type="button" class="button" onclick="calculateRandomCase()">Comparer avec un cas
@@ -149,6 +158,34 @@
                         <th>Durée de l'emprunt (années)</th>
                         <th>Part de l'assurance vie (€)</th>
                         <th>Montant du prêt (€)</th>
+                        <th>Intérêts payés (€)</th>
+                        <th>Impôts payés sur la plus-value (€)</th>
+                        <th>Coût total (€)</th>
+                        <th>Valeur future de l'assurance vie (€)</th>
+                        <th>Bilan (€)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="results">
+            <h2>Simulation Personnalisée</h2>
+            <div class="form-group">
+                <label for="montant_rachat_perso">Montant racheté (€) :</label>
+                <input type="number" id="montant_rachat_perso" name="montant_rachat_perso" value="20000">
+            </div>
+            <div class="form-group">
+                <label for="duree_emprunt_perso">Durée de remboursement (années) :</label>
+                <input type="number" id="duree_emprunt_perso" name="duree_emprunt_perso" value="15" min="1" max="25">
+            </div>
+            <button type="button" class="button" onclick="calculatePerso()">Simuler</button>
+            <table id="persoResultTable" class="results-table">
+                <thead>
+                    <tr>
+                        <th>Durée de l'emprunt (années)</th>
+                        <th>Part rachetée de l'assurance vie (€)</th>
+                        <th>Montant du prêt (€)</th>
+                        <th>Échéance mensuelle (€)</th>
                         <th>Intérêts payés (€)</th>
                         <th>Impôts payés sur la plus-value (€)</th>
                         <th>Coût total (€)</th>
