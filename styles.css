@@ -4,6 +4,8 @@
     --dark-bg-color: #1e2a38;
     --dark-text-color: #d1dbe0;
     --primary-color: #2196F3AD;
+    --primary-solid: #1976d2;
+    --primary-solid-hover: #0d5cad;
     --primary-color-alpha: #2196F352;
     --primary-color-alpha-dark: #2195f365;
     --secondary-color: #949494;
@@ -19,6 +21,12 @@
     --white: #ffffff;
     --shadow-color: rgba(0, 0, 0, 0.1);
     --box-shadow-color: rgba(12, 17, 22, 0.7);
+    --error-bg: #fdecea;
+    --error-text: #b71c1c;
+    --error-border: #f5c6c0;
+    --dark-error-bg: #4a1f1f;
+    --dark-error-text: #ff8a80;
+    --dark-error-border: #6b2b2b;
     --rouge-formule: #d40000;
     --bleu-formule: #0057b8;
     --vert-formule: #007f5f;
@@ -58,6 +66,10 @@
     color: var(--rose-formule);
 }
 
+html {
+    -webkit-tap-highlight-color: transparent;
+}
+
 body {
     --rouge-principal: var(--rouge-formule);
     --bleu-principal: var(--bleu-formule);
@@ -68,6 +80,11 @@ body {
     margin: 0;
     padding: 5px;
     overflow-x: hidden;
+    /* Police globale plus compacte */
+    font-size: 14px;
+    line-height: 1.45;
+    /* Supprime le délai de tap et le zoom double-tap sur mobile */
+    touch-action: manipulation;
 }
 
 body.dark-mode {
@@ -76,6 +93,16 @@ body.dark-mode {
     --vert-principal: var(--vert-formule-dark);
     background-color: var(--dark-bg-color);
     color: var(--dark-text-color);
+}
+
+/* Focus clavier toujours visible (accessibilité) */
+:focus-visible {
+    outline: 3px solid var(--primary-solid);
+    outline-offset: 2px;
+}
+
+body.dark-mode :focus-visible {
+    outline-color: var(--bleu-formule-dark);
 }
 
 .container {
@@ -92,11 +119,14 @@ body.dark-mode .container {
     border-color: var(--dark-bg-color);
 }
 
-h1,
-h2 {
-    /* color: var(--light-text-color); */
+h1 {
     text-align: center;
-    font-size: medium;
+    font-size: 1.25rem;
+}
+
+h2 {
+    text-align: center;
+    font-size: 1.05rem;
 }
 
 body.dark-mode h1,
@@ -111,7 +141,7 @@ body.dark-mode h2 {
     top: 0;
     z-index: 1000;
     box-shadow: 0px 2px 3px 1px var(--box-shadow-color);
-    padding: 5px 10px;
+    padding: calc(5px + env(safe-area-inset-top)) 10px 5px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -139,10 +169,22 @@ body.dark-mode .sticky-header {
     position: relative;
 }
 
+.logo-button {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
 .header-logo {
     max-width: 50px;
     max-height: 50px;
-    cursor: pointer;
 }
 
 .logo-help {
@@ -186,7 +228,6 @@ header h1 {
 .github-logo {
     max-width: 32px;
     max-height: 32px;
-    cursor: pointer;
     display: flex;
 }
 
@@ -196,6 +237,11 @@ header h1 {
     height: 34px;
     position: relative;
     margin-left: 10px;
+    /* Cible tactile confortable */
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
 }
 
 .switch input {
@@ -207,10 +253,11 @@ header h1 {
 .slider {
     position: absolute;
     cursor: pointer;
-    top: 0;
+    top: 50%;
+    transform: translateY(-50%);
     left: 0;
     right: 0;
-    bottom: 0;
+    height: 34px;
     background-color: var(--border-color);
     transition: 0.4s;
     border-radius: 34px;
@@ -222,36 +269,21 @@ header h1 {
     height: 26px;
     width: 26px;
     left: 4px;
-    bottom: 4px;
+    top: 4px;
     background-color: var(--white);
     transition: 0.4s;
     border-radius: 50%;
 }
 
 input:checked+.slider {
-    background-color: var(--primary-color);
+    background-color: var(--primary-solid);
 }
 
 input:checked+.slider:before {
     transform: translateX(26px);
 }
 
-.formula {
-    background-color: var(--formula-background);
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    border-left: 4px solid var(--primary-color);
-}
-
-body.dark-mode .formula {
-    background-color: var(--dark-bg-color);
-}
-
-body.dark-mode .form-container {
-    background-color: var(--dark-bg-color);
-}
-
+.formula,
 .form-container {
     background-color: var(--formula-background);
     padding: 10px;
@@ -260,25 +292,95 @@ body.dark-mode .form-container {
     border-left: 4px solid var(--primary-color);
 }
 
+body.dark-mode .formula,
+body.dark-mode .form-container {
+    background-color: var(--dark-even-row-color);
+}
+
+/* Sections repliables (formules, simulation détaillée) */
+details.formula,
+details.results-details {
+    cursor: pointer;
+}
+
+summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 8px 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+}
+
+summary::marker {
+    color: var(--primary-solid);
+}
+
+.error-banner {
+    background-color: var(--error-bg);
+    color: var(--error-text);
+    border: 1px solid var(--error-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 10px 0;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+body.dark-mode .error-banner {
+    background-color: var(--dark-error-bg);
+    color: var(--dark-error-text);
+    border-color: var(--dark-error-border);
+}
+
 .form {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    /* Espace entre les éléments */
+}
+
+.form-fieldset {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin: 0;
+    padding: 10px;
+    flex: 1 1 calc(50% - 10px);
+    min-width: 200px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-content: flex-start;
+}
+
+.form-fieldset legend {
+    font-weight: bold;
+    padding: 0 6px;
+    font-size: 0.9rem;
+}
+
+body.dark-mode .form-fieldset {
+    border-color: var(--dark-even-row-color);
 }
 
 .form-group {
     flex: 1 1 calc(50% - 10px);
-    /* Ajustez la largeur selon vos besoins */
-    min-width: 200px;
-    /* Largeur minimale pour chaque form-group */
+    /* 140px permet deux champs par ligne même sur un écran de 360px */
+    min-width: 140px;
     margin-bottom: 10px;
 }
 
-.form-group label {
+.form-group-full {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+
+.form-group label,
+.form-label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
+    font-size: 0.9rem;
 }
 
 .form-group input {
@@ -287,42 +389,182 @@ body.dark-mode .form-container {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     box-sizing: border-box;
+    /* 16px minimum : évite le zoom automatique au focus sur iOS */
+    font-size: 16px;
 }
 
-.optimisation-switch {
+/* Segmented control « Optimiser pour » */
+.segmented {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.segmented-option {
+    flex: 1;
+    position: relative;
+    margin: 0;
+}
+
+.segmented-option input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.segmented-option span {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 5px;
+    justify-content: center;
+    text-align: center;
+    padding: 12px 8px;
+    min-height: 44px;
+    box-sizing: border-box;
+    font-weight: 600;
+    transition: background-color 0.2s;
 }
 
-#optimisation-label {
-    font-weight: bold;
-    min-width: 100px;
+.segmented-option input:checked+span {
+    background-color: var(--primary-solid);
+    color: var(--white);
+}
+
+.segmented-option input:focus-visible+span {
+    outline: 3px solid var(--primary-solid);
+    outline-offset: -3px;
+}
+
+body.dark-mode .segmented {
+    border-color: var(--dark-even-row-color);
 }
 
 .button-group {
     display: flex;
     gap: 10px;
+    flex: 1 1 100%;
 }
 
 .button {
-    background-color: var(--primary-color);
+    background-color: var(--primary-solid);
     color: var(--white);
     border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
+    padding: 12px 20px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
     flex: 1;
+    min-height: 48px;
 }
 
 .button:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-solid-hover);
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.button-secondary {
+    background-color: transparent;
+    color: var(--primary-solid);
+    border: 2px solid var(--primary-solid);
+}
+
+.button-secondary:hover {
+    background-color: var(--primary-color-alpha);
+}
+
+body.dark-mode .button-secondary {
+    color: var(--bleu-formule-dark);
+    border-color: var(--bleu-formule-dark);
+}
+
+/* Carte récap du résultat optimal */
+.recap-card {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.recap-item {
+    background-color: var(--formula-background);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.recap-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.recap-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+body.dark-mode .recap-item {
+    background-color: var(--dark-even-row-color);
 }
 
 .results {
     margin-top: 30px;
+}
+
+/* --- Onglets de résultats (pattern WAI-ARIA tabs) --- */
+.tablist {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--border-color);
+    margin-top: 30px;
+}
+
+.tab {
+    flex: 1;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    padding: 12px 8px;
+    min-height: 48px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    color: inherit;
+}
+
+.tab[aria-selected="true"] {
+    border-bottom-color: var(--primary-solid);
+    color: var(--primary-solid);
+}
+
+.tab:focus-visible {
+    outline: 3px solid var(--primary-solid);
+    outline-offset: -3px;
+}
+
+body.dark-mode .tab[aria-selected="true"] {
+    border-bottom-color: var(--bleu-formule-dark);
+    color: var(--bleu-formule-dark);
+}
+
+.tabpanel {
+    padding-top: 10px;
+}
+
+.tabs-title {
+    text-align: left;
+    margin-bottom: 5px;
 }
 
 .results-table {
@@ -334,12 +576,13 @@ body.dark-mode .form-container {
 .results-table th,
 .results-table td {
     border: 1px solid var(--border-color);
-    padding: 12px;
+    padding: 8px;
     text-align: left;
+    font-size: 0.9rem;
 }
 
 .results-table th {
-    background-color: var(--primary-color);
+    background-color: var(--primary-solid);
     color: var(--white);
 }
 
@@ -366,6 +609,16 @@ body.dark-mode button {
     border: 1px solid var(--border-color);
 }
 
+body.dark-mode .button {
+    background-color: var(--primary-solid);
+    color: var(--white);
+    border: none;
+}
+
+body.dark-mode .button-secondary {
+    background-color: transparent;
+}
+
 #language-select {
     margin-left: 10px;
     padding: 5px;
@@ -379,4 +632,183 @@ body.dark-mode #language-select {
     background-color: var(--dark-bg-color);
     color: var(--dark-text-color);
     border-color: var(--border-color);
+}
+
+/* Wrapper permettant le défilement horizontal du tableau détaillé (année par année) */
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* --- Mobile (<= 640px) : tableaux récapitulatifs transformés en cartes --- */
+@media (max-width: 640px) {
+    body {
+        padding: 0;
+        font-size: 14px;
+    }
+
+    .sticky-header {
+        padding: calc(6px + env(safe-area-inset-top)) 8px 6px;
+    }
+
+    .header-logo {
+        max-width: 36px;
+        max-height: 36px;
+    }
+
+    .github-logo {
+        max-width: 26px;
+        max-height: 26px;
+    }
+
+    header h1 {
+        font-size: 1.05rem;
+    }
+
+    .container {
+        padding: 8px;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    h1 {
+        font-size: 1.1rem;
+    }
+
+    h2 {
+        font-size: 1rem;
+    }
+
+    .form-fieldset {
+        flex: 1 1 100%;
+        min-width: 0;
+        padding: 8px;
+    }
+
+    .form {
+        gap: 8px;
+    }
+
+    /* Plusieurs paramètres par ligne, même sur mobile */
+    .form-group {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 120px;
+        margin-bottom: 8px;
+    }
+
+    /* Le segmented control reste pleine largeur */
+    .form-group-full {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
+    .form-group input {
+        padding: 12px;
+        min-height: 44px;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .button {
+        width: 100%;
+    }
+
+    .tab {
+        min-height: 48px;
+        font-size: 0.9rem;
+    }
+
+    .recap-card {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Chaque ligne des tableaux récapitulatifs (optimal, aléatoire, perso)
+       devient une carte lisible. Le détail année par année (#resultsTable)
+       reste un tableau, défilable horizontalement. */
+    .cards-mobile thead {
+        display: none;
+    }
+
+    .cards-mobile,
+    .cards-mobile tbody,
+    .cards-mobile tr,
+    .cards-mobile td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .cards-mobile tr {
+        margin-bottom: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .cards-mobile tr:hover {
+        background-color: transparent;
+    }
+
+    .cards-mobile td {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        border: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 8px 12px;
+        text-align: right;
+    }
+
+    .cards-mobile td:last-child {
+        border-bottom: none;
+    }
+
+    .cards-mobile td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    /* Détail année par année : tableau compact à faire défiler horizontalement */
+    .table-wrapper .results-table {
+        min-width: 720px;
+    }
+
+    .table-wrapper .results-table th,
+    .table-wrapper .results-table td {
+        padding: 6px 8px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+}
+
+/* --- Écrans très étroits (<= 380px, ex. iPhone SE 320px) : on force 2 paramètres par ligne --- */
+@media (max-width: 380px) {
+    .container {
+        padding: 6px;
+    }
+
+    .form {
+        gap: 6px;
+    }
+
+    .form-fieldset {
+        padding: 6px;
+        gap: 6px;
+    }
+
+    .form-group {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 0;
+        margin-bottom: 6px;
+    }
+
+    .form-group-full {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
 }

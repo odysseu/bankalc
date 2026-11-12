@@ -4,6 +4,18 @@
 // Dans le navigateur, ce fichier est chargé avant script.js et expose
 // ses fonctions en globales.
 
+// Parse une saisie utilisateur en nombre : accepte la virgule française ("2,5").
+function parseNombre(valeur) {
+    if (typeof valeur !== 'string') {
+        return NaN;
+    }
+    const normalisee = valeur.trim().replace(',', '.');
+    if (normalisee === '') {
+        return NaN;
+    }
+    return parseFloat(normalisee);
+}
+
 function calculateMensualite(C, tauxInteretEmprunt, dureeEmprunt) {
     const nMensualites = dureeEmprunt * 12;
     if (!Number.isFinite(C) || !Number.isFinite(tauxInteretEmprunt) || nMensualites <= 0) {
@@ -107,6 +119,7 @@ function calculateOptimalX(montantInitial, montantActuel, tauxRendement, montant
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
+        parseNombre,
         calculateMensualite,
         calculateTauxImposition,
         coutRachatAssuranceVie,

@@ -1,21 +1,28 @@
 {
-    "name": "bankalc",
-    "short_name": "bankalc",
+    "name": "Bankalc — assurance-vie ou prêt bancaire ?",
+    "short_name": "Bankalc",
+    "lang": "fr",
+    "dir": "ltr",
+    "id": "/bankalc/",
     "scope": "/bankalc/",
     "start_url": "/bankalc/",
     "display": "standalone",
-    "theme_color": "#000000",
-    "background_color": "#ffffff",
+    "orientation": "any",
+    "theme_color": "#d1dbe0",
+    "background_color": "#d1dbe0",
+    "description": "Faut-il racheter son assurance-vie ou emprunter pour financer un achat immobilier ? Simulateur assurance-vie vs prêt bancaire.",
     "icons": [
         {
             "src": "logos/home-logo-light.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "logos/home-logo-light.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         }
     ]
 }

@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Bankalc : faut-il racheter son assurance-vie ou emprunter pour financer un achat immobilier ? Simulateur assurance-vie vs prêt bancaire.">
+    <meta name="theme-color" content="#d1dbe0">
     <title>Bankalc</title>
-    <script src="https://cdn.jsdelivr.net/npm/js-polyfills@0.1.43/polyfill.min.js"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js"></script>
     <link rel="stylesheet" href="styles.css">
     <link id="favicon" rel="icon" href="logos/favicon-light.ico" type="image/x-icon">
     <link rel="canonical" href="https://odysseu.github.io/bankalc/" />
@@ -18,16 +18,18 @@
     <header class="sticky-header">
         <div class="header-left">
             <div class="logo-container">
-                <img src="logos/home-logo-light.png" alt="Home Logo" class="header-logo" id="home-logo">
-                <!-- <span class="logo-help">Réinitialiser le formulaire</span> -->
+                <button type="button" class="logo-button" id="reset-button" aria-label="Réinitialiser le formulaire"
+                    title="Réinitialiser le formulaire">
+                    <img src="logos/home-logo-light.png" alt="" class="header-logo" id="home-logo">
+                </button>
             </div>
         </div>
         <h1 id="title-section">Bankalc</h1>
         <div class="header-right">
-            <a href="https://github.com/odysseu/bankalc" target="_self">
-                <img src="logos/github-logo-light.png" alt="GitHub Logo" class="github-logo" id="github-logo">
+            <a href="https://github.com/odysseu/bankalc" target="_self" aria-label="Voir le code source sur GitHub">
+                <img src="logos/github-logo-light.png" alt="" class="github-logo" id="github-logo">
             </a>
-            <label class="switch">
+            <label class="switch" aria-label="Activer le mode sombre">
                 <input type="checkbox" id="dark-mode-toggle">
                 <span class="slider round"></span>
             </label>
@@ -35,7 +37,9 @@
     </header>
     <div class="container">
         <h1>Assurance-vie ? Prêt bancal ? Il faut bankalc !</h1>
-        <div class="formula">
+        <div id="error-banner" class="error-banner" role="alert" hidden></div>
+        <details class="formula" id="formula-details">
+            <summary>Voir les formules</summary>
             <h2>Formules</h2>
             <p><span class="math">\( \class{textred}{Mensualité}(x) = x \cdot \frac{\frac{i}{12}}{1 - \frac{1}{(1 +
                     \frac{i}{12})^{n}}}
@@ -55,153 +59,155 @@
                     \class{textpurple}{Impôt_{Assur.vie}}(x) \)</span>
             </p>
             <p><span class="math">\( Bilan(x) = {\class{textyellow}{Assur.vie}}(V_{A} - x) - \class{textpink}{Coût_{total}}(x) \)</span></p>
-        </div>
+        </details>
         <div class="form-container">
             <h2>Paramètres</h2>
             <form id="parametersForm" class="form">
-                <div class="form-group">
-                    <label for="montant_initial">Capital investi (€) :</label>
-                    <input type="number" id="montant_initial" name="montant_initial" value="50000">
-                </div>
-                <div class="form-group">
-                    <label for="montant_actuel">Capital + produits (€) :</label>
-                    <input type="number" id="montant_actuel" name="montant_actuel" value="106000">
-                </div>
-                <div class="form-group">
-                    <label for="taux_rendement">Rendement annuel (%) :</label>
-                    <input type="number" id="taux_rendement" name="taux_rendement" step="0.01" value="2.5">
-                </div>
-                <div class="form-group">
-                    <label for="abattement_fiscal">Abattement annuel (€) :</label>
-                    <input type="number" id="abattement_fiscal" name="abattement_fiscal" value="4600">
-                </div>
-                <div class="form-group">
-                    <label for="montant_achat">Coût de l'immobilier (€) :</label>
-                    <input type="number" id="montant_achat" name="montant_achat" value="180000">
-                </div>
-                <div class="form-group">
-                    <label for="taux_interet_emprunt">Taux d'emprunt annuel (%) :</label>
-                    <input type="number" id="taux_interet_emprunt" name="taux_interet_emprunt" step="0.01" value="3">
-                </div>
-                <div class="form-group">
-                    <label for="salaire_annuel">Salaire brut annuel (€) :</label>
-                    <input type="number" id="salaire_annuel" name="salaire_annuel" value="45000">
-                </div>
-                <div class="form-group">
-                    <label for="taux_effort_max">Taux d'effort (%) :</label>
-                    <input type="number" id="taux_effort_max" name="taux_effort_max" step="0.01" value="33">
-                </div>
-                <div class="form-group">
-                    <label for="optimisation">Optimiser pour :</label>
-                    <div class="optimisation-switch">
-                        <span id="optimisation-label">Coût des impôts</span>
-                        <label class="switch">
-                            <input type="checkbox" id="optimiser_bilan">
-                            <span class="slider round"></span>
+                <fieldset class="form-fieldset">
+                    <legend>Votre assurance-vie</legend>
+                    <div class="form-group">
+                        <label for="montant_initial">Capital investi (€) :</label>
+                        <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off"
+                            id="montant_initial" name="montant_initial" value="50000">
+                    </div>
+                    <div class="form-group">
+                        <label for="montant_actuel">Capital + produits (€) :</label>
+                        <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off"
+                            id="montant_actuel" name="montant_actuel" value="106000">
+                    </div>
+                    <div class="form-group">
+                        <label for="taux_rendement">Rendement annuel (%) :</label>
+                        <input type="text" inputmode="decimal" pattern="-?[0-9]*[.,]?[0-9]*" step="0.01"
+                            autocomplete="off" id="taux_rendement" name="taux_rendement" value="2.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="abattement_fiscal">Abattement annuel (€) :</label>
+                        <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off"
+                            id="abattement_fiscal" name="abattement_fiscal" value="4600">
+                    </div>
+                </fieldset>
+                <fieldset class="form-fieldset">
+                    <legend>Votre projet</legend>
+                    <div class="form-group">
+                        <label for="montant_achat">Coût de l'immobilier (€) :</label>
+                        <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off"
+                            id="montant_achat" name="montant_achat" value="180000">
+                    </div>
+                    <div class="form-group">
+                        <label for="taux_interet_emprunt">Taux d'emprunt annuel (%) :</label>
+                        <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01"
+                            autocomplete="off" id="taux_interet_emprunt" name="taux_interet_emprunt" value="3">
+                    </div>
+                </fieldset>
+                <fieldset class="form-fieldset">
+                    <legend>Votre capacité d'emprunt</legend>
+                    <div class="form-group">
+                        <label for="salaire_annuel">Salaire brut annuel (€) :</label>
+                        <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off"
+                            id="salaire_annuel" name="salaire_annuel" value="45000">
+                    </div>
+                    <div class="form-group">
+                        <label for="taux_effort_max">Taux d'effort (%) :</label>
+                        <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.01"
+                            autocomplete="off" id="taux_effort_max" name="taux_effort_max" value="33">
+                    </div>
+                </fieldset>
+                <div class="form-group form-group-full">
+                    <span class="form-label" id="optimisation-label">Optimiser pour :</span>
+                    <div class="segmented" role="radiogroup" aria-labelledby="optimisation-label">
+                        <label class="segmented-option">
+                            <input type="radio" name="optimisation" id="optimisation_cout" value="cout" checked>
+                            <span>Coût total</span>
+                        </label>
+                        <label class="segmented-option">
+                            <input type="radio" name="optimisation" id="optimisation_bilan" value="bilan">
+                            <span>Bilan</span>
                         </label>
                     </div>
                 </div>
                 <div class="button-group">
-                    <button type="button" class="button" onclick="calculate()">Calculer</button>
-                    <button type="button" class="button" onclick="calculateRandomCase()">Comparer avec un cas
-                        aléatoire</button>
+                    <button type="button" class="button" id="calculate-button" onclick="onCalculateClick()">Calculer</button>
                 </div>
             </form>
         </div>
-        <div class="results">
-            <h2>Résultat Optimal</h2>
-            <table id="optimalResultTable" class="results-table">
-                <thead>
-                    <tr>
-                        <th>Durée de l'emprunt (années)</th>
-                        <th>Part optimale de l'assurance vie (€)</th>
-                        <th>Montant du prêt (€)</th>
-                        <th>Échéance mensuelle (€)</th>
-                        <th>Intérêts payés (€)</th>
-                        <th>Impôts payés sur la plus-value (€)</th>
-                        <th>Coût total (€)</th>
-                        <th>Valeur future de l'assurance vie (€)</th>
-                        <th>Bilan (€)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div class="results">
-            <h2>Résultats de la Simulation</h2>
-            <table id="resultsTable" class="results-table">
-                <thead>
-                    <tr>
-                        <th>Durée de l'emprunt (années)</th>
-                        <th>Part optimale de l'assurance vie (€)</th>
-                        <th>Montant du prêt (€)</th>
-                        <th>Échéance mensuelle (€)</th>
-                        <th>Intérêts payés (€)</th>
-                        <th>Impôts payés sur la plus-value (€)</th>
-                        <th>Coût total (€)</th>
-                        <th>Valeur future de l'assurance vie (€)</th>
-                        <th>Bilan (€)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div class="results">
-            <h2>Cas Aléatoire</h2>
-            <table id="randomCaseTable" class="results-table">
-                <thead>
-                    <tr>
-                        <th>Durée de l'emprunt (années)</th>
-                        <th>Part de l'assurance vie (€)</th>
-                        <th>Montant du prêt (€)</th>
-                        <th>Intérêts payés (€)</th>
-                        <th>Impôts payés sur la plus-value (€)</th>
-                        <th>Coût total (€)</th>
-                        <th>Valeur future de l'assurance vie (€)</th>
-                        <th>Bilan (€)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div class="results">
-            <h2>Simulation Personnalisée</h2>
-            <div class="form-group">
-                <label for="montant_rachat_perso">Montant racheté (€) :</label>
-                <input type="number" id="montant_rachat_perso" name="montant_rachat_perso" value="20000">
+        <div class="tabs">
+            <div class="tablist" role="tablist" aria-label="Résultats du calcul">
+                <button type="button" class="tab" role="tab" id="tab-summary" aria-selected="true"
+                    aria-controls="panel-summary">Résumé</button>
+                <button type="button" class="tab" role="tab" id="tab-detail" aria-selected="false"
+                    aria-controls="panel-detail" tabindex="-1">Simulation détaillée</button>
             </div>
-            <div class="form-group">
-                <label for="duree_emprunt_perso">Durée de remboursement (années) :</label>
-                <input type="number" id="duree_emprunt_perso" name="duree_emprunt_perso" value="15" min="1" max="25">
+            <div class="tabpanel" role="tabpanel" id="panel-summary" aria-labelledby="tab-summary" aria-live="polite">
+                <h2>Résumé et résultat optimal</h2>
+                <div id="recapCard" class="recap-card" hidden aria-live="polite"></div>
+                <table id="optimalResultTable" class="results-table cards-mobile">
+                    <tbody></tbody>
+                </table>
             </div>
-            <button type="button" class="button" onclick="calculatePerso()">Simuler</button>
-            <table id="persoResultTable" class="results-table">
-                <thead>
-                    <tr>
-                        <th>Durée de l'emprunt (années)</th>
-                        <th>Part rachetée de l'assurance vie (€)</th>
-                        <th>Montant du prêt (€)</th>
-                        <th>Échéance mensuelle (€)</th>
-                        <th>Intérêts payés (€)</th>
-                        <th>Impôts payés sur la plus-value (€)</th>
-                        <th>Coût total (€)</th>
-                        <th>Valeur future de l'assurance vie (€)</th>
-                        <th>Bilan (€)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <div class="tabpanel" role="tabpanel" id="panel-detail" aria-labelledby="tab-detail" hidden>
+                <h2>Simulation détaillée (toutes les durées d'emprunt)</h2>
+                <div class="table-wrapper">
+                    <table id="resultsTable" class="results-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Durée de l'emprunt (années)</th>
+                                <th scope="col">Part optimale de l'assurance vie (€)</th>
+                                <th scope="col">Montant du prêt (€)</th>
+                                <th scope="col">Échéance mensuelle (€)</th>
+                                <th scope="col">Intérêts payés (€)</th>
+                                <th scope="col">Impôts payés sur la plus-value (€)</th>
+                                <th scope="col">Coût total (€)</th>
+                                <th scope="col">Valeur future de l'assurance vie (€)</th>
+                                <th scope="col">Bilan (€)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tabs">
+            <h2 class="tabs-title">Autres simulations</h2>
+            <div class="tablist" role="tablist" aria-label="Autres simulations">
+                <button type="button" class="tab" role="tab" id="tab-random" aria-selected="true"
+                    aria-controls="panel-random">Cas aléatoire</button>
+                <button type="button" class="tab" role="tab" id="tab-perso" aria-selected="false"
+                    aria-controls="panel-perso" tabindex="-1">Simulation personnalisée</button>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="panel-random" aria-labelledby="tab-random" aria-live="polite">
+                <button type="button" class="button button-secondary" onclick="calculateRandomCase()">Lancer un cas
+                    aléatoire</button>
+                <table id="randomCaseTable" class="results-table cards-mobile">
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="panel-perso" aria-labelledby="tab-perso" hidden>
+                <div class="form-group">
+                    <label for="montant_rachat_perso">Montant racheté (€) :</label>
+                    <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off"
+                        id="montant_rachat_perso" name="montant_rachat_perso" value="20000">
+                </div>
+                <div class="form-group">
+                    <label for="duree_emprunt_perso">Durée de remboursement (années) :</label>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" id="duree_emprunt_perso"
+                        name="duree_emprunt_perso" value="15">
+                </div>
+                <button type="button" class="button button-secondary" onclick="calculatePerso()">Simuler</button>
+                <table id="persoResultTable" class="results-table cards-mobile" aria-live="polite">
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
-    <script src="calculs.js"></script>
-    <script src="script.js"></script>
+    <script src="calculs.js" defer></script>
+    <script src="script.js" defer></script>
     <script type="module" src="dark-mode.js"></script>
     <script>
-        window.MathJax = {
-            tex: {
-                packages: { '[+]': ['class'] }
-            }
-        };
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('sw.js').catch(function () { });
+            });
+        }
     </script>
 </body>
 

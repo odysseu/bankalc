@@ -3,6 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const {
+    parseNombre,
     calculateMensualite,
     calculateTauxImposition,
     coutRachatAssuranceVie,
@@ -19,6 +20,17 @@ function approx(actual, expected, tolerance = 1e-6, message = '') {
         `${message} attendu ~${expected}, reçu ${actual}`
     );
 }
+
+test('parseNombre — virgule française, point, espaces, entrées invalides', () => {
+    assert.strictEqual(parseNombre('2,5'), 2.5);
+    assert.strictEqual(parseNombre('2.5'), 2.5);
+    assert.strictEqual(parseNombre(' 42 '), 42);
+    assert.strictEqual(parseNombre('180000'), 180000);
+    assert.ok(Number.isNaN(parseNombre('')));
+    assert.ok(Number.isNaN(parseNombre('   ')));
+    assert.ok(Number.isNaN(parseNombre('abc')));
+    assert.ok(Number.isNaN(parseNombre(undefined)));
+});
 
 test('calculateMensualite — cas nominal (100k€, 3%, 20 ans)', () => {
     // r = 0.0025, n = 240, mensualité = 100000*0.0025 / (1 - 1.0025^-240) ≈ 554.60
