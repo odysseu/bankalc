@@ -1,0 +1,9 @@
+{
+  "name": "bankalc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bankalc — assurance-vie ou prêt bancaire : calculatrice d'optimisation",
+  "scripts": {
+    "test": "node --test --experimental-test-coverage \"test/*.test.js\""
+  }
+}
